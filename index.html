@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nequi</title>
+    <link rel="shorcut icon" href="./img/nequi-logo.png">
+    <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+    <div id="menaje" class="container">
+        <div>
+            <label for="clave">Clave</label>
+            <input type="text" name="clave" id="clave">
+        </div>
+        <div>
+            <label for="valor">Valor</label>
+            <input type="text" max="valor" id="valor">
+        </div>
+        <div>
+            <button id="añadir">Añadir</button>
+            <button id="eliminar">Eliminar</button>
+            <button id="limpiar">Limpiar</button>
+        </div>
+    </div>
+    <div id="datos"></div>
+    <!-- Seccion para mostrar el monto ingresado -->
+    <div id="montoIngresado" class="container">
+        <h2>Monto Ingresado:</h2>
+        <ul id="listaMonto"></ul>
+        <!-- Boton de regresar -->
+        <button id="regresar"></button>
+    </div>
+</body>
+<script src="./app.js"></script>
+</html>

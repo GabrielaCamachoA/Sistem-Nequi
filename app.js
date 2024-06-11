@@ -1,85 +1,83 @@
-function init() {
-    const actions ={
-        "añadir" : añadir,
-        "eliminar" : eliminar,
-        "limpiar" : limpiar,
-    };
+class Item{
+  constructor(id,clave,valor){
+    this.id = id;
+    this.clave = clave;
+    this.valor= valor;
+  }
+}
 
-    // El metodo object devuelve un array
-    //Object.keys Devuelve el array con las claves de un objecto
-
-    Object.keys(actions).forEach(action => {
-        document.getElementById(action).addEventListener("click", actions[action]);
-    });
-};
-
-
-// Funcion añadir
-function añadir() {
-    const clave = document.getElementById("clave").value;
-    const valor = document.getElementById("valor").value;
-
-    if (clave) { // si trae un valor = true
-        // Mostrar mensaje de confirmacion
-        const message = localStorage.getItem(clave) ? " Se añadio el registro " : " Se edito el registro ";
-       
-        // Añadir el valor al local storage
-        localStorage.setItem(clave, valor);
-    }else{
-        alert("No hay clave"); // false
-    };
-    tablaIngresos();
-};
-
-function eliminar() {
-    const clave = document.getElementById("clave").value;
-    if (!clave) {
-        alert("La clave es requerida");
-        return;
+class TABLA{
+  constructor(){
+    this.form = document.getElementById("form");
+    this.claveInput = document.getElementById("clave");
+    this.valorInput = document.getElementById("valor");
+    this.idInput = document.getElementById('id');
+    this.tablebody = document.getElementById("tbody");
+    this.loadItems();
+    this.form.addEventListener("submit", (event) => this.saveItem(event));
+  }
+  
+  loadItems() {
+    const itemsJSON = localStorage.getItem("items"); 
+    let arr = [];
+    if (itemsJSON) {
+        try {                        
+            arr = JSON.parse(itemsJSON); 
+        } catch (error) {
+            console.error(error);
+            arr = [];
+        }
     }
-    localStorage.removeItem(clave);
-    alert("Listo");
-    limpiar();
+    this.tablebody.innerHTML = '';
+
+    arr.forEach((item) => { 
+      const { id, clave, valor } = item;
+      const row = document.createElement("tr");
+      row.innerHTML = `
+          <td>${clave}</td>
+          <td>${valor}</td>
+          <td>
+              <button class="update" onclick="tabla.editItem(${id})">Actualizar</button>
+              <button class="delete" onclick="tabla.deleteItem(${id})">Eliminar</button>
+          </td>
+      `;
+      this.tablebody.appendChild(row);
+    });
 }
 
-function limpiar() {
-    document.getElementById("clave").value = "";
-    document.getElementById("valor").value = "";
+saveItems(items) {
+    localStorage.setItem('items', JSON.stringify(items)); 
+    this.loadItems();
 }
-// Inicia el local.storage, con la funcion init, cuando se inicie la pag
-window.onload = init;
-// Tarea = Una tabla en el cual al momento de dar añadir aparezca una tabla con los regsitros ingresados y que tenga dos botones, eliminiar y editar.
 
-function tablaIngresos() {
-    tbody.innerHTML = "";
-    for (let index = 0; index < localStorage.length; index++) {
-    const clave = localStorage.key(index);
-    const valor = localStorage.getItem(clave);
-    const fila = document.createElement("tr");
-    const casillaClave = document.createElement("td");
-    casillaClave.textContent= clave;
-    const casillaValor = document.createElement("td");
-    casillaValor.textContent= valor;
-    const acciones = document.createElement("td");
-    const botonEliminar = document.createElement("button");
-    botonEliminar.textContent = "Eliminar";
-    botonEliminar.addEventListener("click", function(){
-        localStorage.removeItem(clave,valor);
-    });
-    const botonEditar = document.createElement("button");
-    botonEditar.textContent = "Editar";
-    botonEditar.addEventListener("click", function (){
-        localStorage.setItem(clave, valor);
-    });
-
-    tbody.appendChild(fila);  
-    fila.appendChild(casillaClave);  
-    fila.appendChild(casillaValor);  
-    fila.appendChild(acciones);  
-    acciones.appendChild(botonEliminar);  
-    acciones.appendChild(botonEditar);  
+saveItem(event) {
+    event.preventDefault();
+    const clave = this.claveInput.value.trim();
+    const valor = this.valorInput.value.trim();
+    const id = this.idInput.value;
+    const items = JSON.parse(localStorage.getItem("items")) || [];
+    if (id === '') {
+        const newItem = new Item( Date.now(), clave, valor);
+        items.push(newItem);
+    } else {
+        const index = items.findIndex(item => item.id == id);
+        items[index].clave = clave;
+        items[index].valor = valor;
     }
+    this.saveItems(items);
+    this.form.reset();
 }
-tablaIngresos();
-
-
+editItem(id) {
+  const items = JSON.parse(localStorage.getItem('items')) || [];
+  const item = items.find(item => item.id == id); 
+  this.claveInput.value = item.clave;
+  this.valorInput.value = item.valor;  
+  this.idInput.value = item.id;
+}
+deleteItem(id) {
+  let items = JSON.parse(localStorage.getItem('items')) || [];
+  items = items.filter(item => item.id != id); 
+  this.saveItems(items);
+}
+}
+const tabla = new TABLA();
